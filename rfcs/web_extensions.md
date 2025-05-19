@@ -48,8 +48,15 @@ Asserts that a given condition is `false`. If the condition is `true`, the test 
 * `message` (string, optional) – A message describing the assertion.
 
 **`browser.test.assertEq(actual, expected, message)`**
-Asserts that the actual value is equal to the expected value. If not equal, the test fails.
-This matches the ES [SameValue](https://tc39.es/ecma262/#sec-samevalue) implementation.
+Throws an assertion error and fails the test if the actual value is not _logically_ equal to the expected value, by these rules:
+
+1) _Plain arrays_ (`Array.isArray()` returns true) are compared for _deep_ equality.
+    1.1) Their `length` and all items are recursively compared by these same rules.
+2) _Plain objects_ (with prototype `Object.prototype` or `null`) are also compared recursively.
+    2.1) Only enumerable _own_ properties are considered, unordered.
+3) Everything else is compared using `Object.is()` [same value algorithm](https://tc39.es/ecma262/#sec-samevalue).
+
+We're starting with support for the minimal set of compound types, and plan to expand custom rules to include `ArrayBuffer`s, `Map`s, `Set`s, etc. in congruence with Node's [assert.deepStrictEqual()](https://nodejs.org/api/assert.html#comparison-details_1).
 
 **Parameters**
 
@@ -69,7 +76,7 @@ When `assertThrows` is invoked with two parameters, the second value should be i
 * `message` (string, optional) – A message describing the assertion.
 
 **`browser.test.runTests(tests)`**
-Queues an array of individual test functions to run, executes them serially, and then returns a promise. The promise is rejected if one of the tests fails; otherwise, it resolves. A test will fail if an assertion fails or if an unexpected error is thrown. All test functions passed into the array will run, even if a previous test failed.
+Queues an array of individual test functions to run, executes them serially, and returns a promise. The promise is rejected if one of the tests fails; otherwise, it resolves. A test will fail if an assertion fails or if an unexpected error is thrown. All test functions passed into the array will run, even if a previous test failed.  After the returned promise is settled, method can be called again to run additional tests. Calliong it while test are still running throws or returns a rejected promise.
 
 **Parameters**
 
@@ -108,9 +115,8 @@ Messages the browser agents can send to the test harness, and the expected data 
 **"assert-equality" `data` parameters**
 
 * `result` (boolean) – A boolean indicating whether the test assertion passed or failed.
-* `message` (object) – A message describing the assertion.
-* `expectedValue` (any) – The expected value of the object being evaluated.
-* `actualValue` (any) – The actual value of the object being evaluated.
+* `assertionDescription` (string) – A human-readable description, such as "Assertion Failed: Expected: 'string'; Actual: 'function'".
+* `message` (string) (optional) – An additional message provided by the test assertion.
 
 ## Alternatives Considered
 
