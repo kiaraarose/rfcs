@@ -76,7 +76,7 @@ When `assertThrows` is invoked with two parameters, the second value should be i
 * `message` (string, optional) – A message describing the assertion.
 
 **`browser.test.runTests(tests)`**
-Queues an array of individual test functions to run, executes them serially, and returns a promise. The promise is rejected if one of the tests fails; otherwise, it resolves. A test will fail if an assertion fails or if an unexpected error is thrown. All test functions passed into the array will run, even if a previous test failed.  After the returned promise is settled, method can be called again to run additional tests. Calliong it while test are still running throws or returns a rejected promise.
+Queues an array of individual test functions to run, executes them serially, and returns a promise. The promise is rejected if one of the tests fails; otherwise, it resolves. A test will fail if an assertion fails or if an unexpected error is thrown. All test functions passed into the array will run, even if a previous test failed.  After the returned promise is settled, the method can be called again to run additional tests. Calling it while test are still running throws or returns a rejected promise.
 
 **Parameters**
 
